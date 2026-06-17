@@ -1,0 +1,37 @@
+name: leetcode-stats
+
+# 每次 push 到解題的 .py 檔就自動重算每月刷題統計，寫回 README。
+# 只在 *.py 變動時觸發；機器人只改 README.md（不在觸發路徑）所以不會無限迴圈。
+on:
+  push:
+    paths:
+      - '**/*.py'
+      - '!.github/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # 需要完整歷史來推算每題的加入日期
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 產生統計寫進 README
+        run: python .github/scripts/leetcode_stats.py
+      - name: 有變動才 commit
+        run: |
+          if [ -n "$(git status --porcelain README.md)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add README.md
+            git commit -m "chore: auto-update leetcode stats [skip ci]"
+            git push
+          else
+            echo "no change"
+          fi
