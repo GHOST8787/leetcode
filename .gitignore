@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 .vscode/
+# 本機學習筆記 HTML（個人讀物，不公開）
+daily_record_html/
